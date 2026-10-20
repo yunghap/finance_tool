@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>買樓 vs 租樓 vs 定期存款 | 買家與業主雙視角分析</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif; }
+        body { background: #f5f7fa; color: #333; line-height: 1.6; padding: 20px; margin: 0; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; font-size: 1.1em; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr; } }
+        .card { background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 30px; }
+        .card h2 { color: #2c3e50; margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+        .card h3 { color: #34495e; margin-top: 25px; margin-bottom: 15px; font-size: 1.1em; }
+        .input-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; font-size: 0.95em; }
+        input[type="number"] { width: 100%; padding: 11px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; transition: border-color 0.3s; }
+        input[type="number"]:focus { border-color: #3498db; outline: none; box-shadow: 0 0 0 2px rgba(52,152,219,0.2); }
+        .currency { position: relative; }
+        .currency-symbol { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #7f8c8d; font-weight: 600; }
+        .currency input { padding-left: 40px; }
+        .slider-container { margin-top: 6px; }
+        .slider-value { text-align: right; font-weight: 600; color: #3498db; margin-top: 3px; font-size: 0.9em; }
+        .btn { background: linear-gradient(to right, #3498db, #2c80b9); color: white; border: none; padding: 14px 28px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 600; transition: all 0.3s; margin-top: 10px; }
+        .btn:hover { background: linear-gradient(to right, #2980b9, #2573a7); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(52,152,219,0.3); }
+        .section-title { font-size: 18px; color: #2c3e50; margin-top: 25px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0; font-weight: 700; }
+        .result-box { border-radius: 10px; padding: 20px; margin-top: 20px; }
+        .result-box h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.1em; }
+        .result-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; }
+        .result-item:last-child { border-bottom: none; }
+        .result-label { color: #7f8c8d; font-size: 0.95em; }
+        .result-value { font-weight: 700; color: #2c3e50; }
+        .result-big { font-size: 1.2em; font-weight: 800; padding: 15px; margin-top: 15px; border-radius: 8px; text-align: center; }
+        .positive-bg { background: #e8f8f0; color: #27ae60; border: 2px solid #2ecc71; }
+        .negative-bg { background: #ffeaea; color: #c0392b; border: 2px solid #e74c3c; }
+        .neutral-bg { background: #f0f4f8; color: #34495e; border: 2px solid #95a5a6; }
+        .highlight { color: #e74c3c; font-weight: 700; }
+        .positive { color: #2ecc71; font-weight: 700; }
+        .insight { background: #fff9e6; border-left: 4px solid #f39c12; padding: 15px 20px; border-radius: 8px; margin-top: 20px; font-size: 0.95em; line-height: 1.8; }
+        .insight strong { color: #2c3e50; }
+        .chart-box { background: #fafafa; border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .chart-box h3 { text-align: center; margin-top: 0; color: #2c3e50; font-size: 1.1em; }
+        canvas { max-height: 320px; width: 100%; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px; }
+        @media (max-width: 900px) { .comparison-grid { grid-template-columns: 1fr; } }
+        .compare-card { padding: 20px; border-radius: 10px; text-align: center; }
+        .compare-card h4 { margin: 0 0 10px 0; font-size: 1em; }
+        .compare-card .big-num { font-size: 1.5em; font-weight: 800; margin: 10px 0; }
+        .compare-card .sub { font-size: 0.85em; color: #666; }
+        .buyer-theme { background: linear-gradient(135deg, #e8f4fc, #d1ecf9); border: 2px solid #3498db; }
+        .seller-theme { background: linear-gradient(135deg, #f0e8fc, #e2d1f9); border: 2px solid #9b59b6; }
+        .vacant-theme { background: linear-gradient(135deg, #fce8e8, #f9d1d1); border: 2px solid #e74c3c; }
+        .footer { text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 14px; padding-top: 20px; border-top: 1px solid #eee; }
+        .formula { font-family: monospace; background: #f1f2f6; padding: 10px; border-radius: 5px; margin: 10px 0; overflow-x: auto; font-size: 0.9em; }
+        .toggle-view { display: flex; gap: 10px; margin-bottom: 20px; }
+        .toggle-btn { flex: 1; padding: 15px; border: 2px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 1em; transition: all 0.3s; }
+        .toggle-btn.active { border-color: #3498db; background: #e8f4fc; color: #3498db; }
+        .rent-input-highlight { background: #fdf2e9; border: 2px solid #f39c12; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .rent-input-highlight label { color: #d35400; font-weight: 700; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+        .badge-buyer { background: #3498db; color: white; }
+        .badge-seller { background: #9b59b6; color: white; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; background: #f5eefc; border: 2px solid #9b59b6; border-radius: 10px; padding: 15px; margin-bottom: 18px; }
+        .checkbox-group input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #9b59b6; }
+        .checkbox-group label { margin: 0; cursor: pointer; color: #6c3483; font-weight: 700; font-size: 1em; }
+        .checkbox-group .hint { font-size: 0.85em; color: #7f8c8d; font-weight: 400; margin-left: 5px; }
+        .no-mortgage-note { background: #d1f2eb; border-left: 4px solid #2ecc71; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9em; color: #186a3b; display: none; }
+        .no-mortgage-note.show { display: block; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 買樓 vs 租樓 vs 定期存款</h1>
+        <p class="subtitle">買家角度 × 業主角度 雙重視角分析</p>
+
+        <!-- ==================== INPUTS ==================== -->
+        <div class="card" style="margin-bottom: 30px;">
+            <h2>📝 輸入基本資料</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h3>物業資料</h3>
+                    <div class="input-group">
+                        <label for="propertyPrice">物業價格 (港元)</label>
+                        <div class="currency"><span class="currency-symbol">HK$</span><input type="number" id="propertyPrice" min="100000" max="50000000" step="100000" value="7000000"></div>
+                        <div class="slider-container"><input type="range" id="propertyPriceSlider" min="100000" max="50000000" step="100000" value="7000000" class="slider"><div class="slider-value" id="propertyPriceValue">7,000,000</div></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="propertySize">物業面積 (平方呎)</label>
+                        <input type="number" id="propertySize" min="100" max="5000" step="50" value="800">
+                        <div class="slider-container"><input type="range" id="propertySizeSlider" min="100" max="5000" step="50" value="800" class="slider"><div class="slider-value" id="propertySizeValue">800 平方呎</div></div>
+                    </div>
+                </div>
+                <div>
+                    <h3>市場利率</h3>
+                    <div class="input-group">
+                        <label for="timeDepositRate">定期存款年利率 (%)</label>
+                        <input type="number" id="timeDepositRate" min="0" max="10" step="0.1" value="3.5">
+                        <div class="slider-container"><input type="range" id="timeDepositRateSlider" min="0" max="10" step="0.1" value="3.5" class="slider"><div class="slider-value" id="timeDepositRateValue">3.5%</div></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="mortgageRate">按揭年利率 (%)</label>
+                        <input type="number" id="mortgageRate" min="0.1" max="20" step="0.1" value="3.0">
+                        <div class="slider-container"><input type="range" id="mortgageRateSlider" min="0.1" max="10" step="0.1" value="3.0" class="slider"><div class="slider-value" id="mortgageRateValue">3.0%</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === BUYER SIDE INPUTS === -->
+            <div class="section-title">🛒 買家角度：買樓計劃 <span class="badge badge-buyer">買家</span></div>
+            <div class="grid-2">
+                <div>
+                    <div class="input-group">
+                        <label for="loanAmount">貸款本金 (最高20,000,000)</label>
+                        <div class="currency"><span class="currency-symbol">HK$</span><input type="number" id="loanAmount" min="0" max="20000000" step="100000" value="5000000"></div>
+                        <div class="slider-container"><input type="range" id="loanAmountSlider" min="0" max="20000000" step="100000" value="5000000" class="slider"><div class="slider-value" id="loanAmountValue">5,000,000</div></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="loanTerm">貸款年期 (年)</label>
+                        <input type="number" id="loanTerm" min="1" max="40" step="1" value="20">
+                        <div class="slider-container"><input type="range" id="loanTermSlider" min="1" max="40" step="1" value="20" class="slider"><div class="slider-value" id="loanTermValue">20 年</div></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="input-group">
+                        <label for="managementFee">每月管理費 (港元)</label>
+                        <div class="currency"><span class="currency-symbol">HK$</span><input type="number" id="managementFee" min="0" max="20000" step="100" value="2400"></div>
+                        <div class="slider-container"><input type="range" id="managementFeeSlider" min="0" max="20000" step="100" value="2400" class="slider"><div class="slider-value" id="managementFeeValue">2,400</div></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="rates">每月差餉 (港元)</label>
+                        <div class="currency"><span class="currency-symbol">HK$</span><input type="number" id="rates" min="0" max="10000" step="100" value="800"></div>
+                        <div class="slider-container"><input type="range" id="ratesSlider" min="0" max="10000" step="100" value="800" class="slider"><div class="slider-value" id="ratesValue">800</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === SELLER MORTGAGE OPTION === -->
+            <div class="section-title">🏠 賣家角度：按揭狀況 <span class="badge badge-seller">賣家</span></div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="sellerNoMortgage">
+                <label for="sellerNoMortgage">業主已無需按揭（已供滿）<span class="hint">— 勾選後業主無供款利息及本金支出</span></label>
+            </div>
+            <div class="no-mortgage-note" id="noMortgageNote">
+                ✅ 已選擇「無需按揭」：業主每月無供款支出，淨現金流 = 租金 − 管理費 − 差餉。
+            </div>
+
+            <!-- === RENT INPUTS (SEPARATED) === -->
+            <div class="section-title">🏘️ 租金設定（買家與賣家可分別設定）</div>
+            <div class="grid-2">
+                <div class="rent-input-highlight">
+                    <div class="input-group">
+                        <label for="buyerRent">🛒 買家租樓的租金 (港元) <span class="badge badge-buyer">買家</span></label>
+                        <div class="currency"><span class="currency-symbol">HK$</span><input type="number" id="buyerRent" min="0" max="200000" step="500" value="20000"></div>
+                        <div class="slider-container"><input type="range" id="buyerRentSlider" min="0" max="200000" step="500" value="20000" class="slider"><div class="slider-value" id="buyerRentValue">20,000</div></div>
+                        <p style="font-size:0.85em; color:#7f8c8d; margin:6px 0 0 0;">買家如果選擇租樓，每月需支付的租金</p>
+                    </div>
+                </div>
+                <div class="rent-input-highlight" style="background:#f5eefc; border-color:#9b59b6;">
+                    <div class="input-group">
+                        <label for="sellerRent">🏠 賣家收租的租金 (港元) <span class="badge badge-seller">賣家</span></label>
+                        <div class="currency"><span class="currency-symbol">HK$</span><input type="number" id="sellerRent" min="0" max="200000" step="500" value="20000"></div>
+                        <div class="slider-container"><input type="range" id="sellerRentSlider" min="0" max="200000" step="500" value="20000" class="slider"><div class="slider-value" id="sellerRentValue">20,000</div></div>
+                        <p style="font-size:0.85em; color:#7f8c8d; margin:6px 0 0 0;">業主如果繼續持有出租，每月可收取的租金</p>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group" style="margin-top:15px;">
+                <label for="vacancyMonths">預計空置期 (每月空置月數/年) — 賣家角度</label>
+                <input type="number" id="vacancyMonths" min="0" max="12" step="0.5" value="1">
+                <div class="slider-container"><input type="range" id="vacancyMonthsSlider" min="0" max="12" step="0.5" value="1" class="slider"><div class="slider-value" id="vacancyMonthsValue">1 個月/年</div></div>
+            </div>
+
+            <button class="btn" id="calculateBtn"><i class="fas fa-calculator"></i> 計算雙重視角分析</button>
+        </div>
+
+        <!-- ==================== BUYER VIEW ==================== -->
+        <div class="card" style="margin-bottom: 30px;">
+            <h2 style="color: #2980b9;">🛒 買家角度：買樓 vs 租樓 + 定期存款</h2>
+            <p style="color: #7f8c8d; margin-top: -10px;">作為買家，你的選擇：<strong>(A) 買樓</strong> 還是 <strong>(B) 租樓 + 首期放定期存款</strong>？</p>
+
+            <div class="grid-3 comparison-grid">
+                <div class="compare-card buyer-theme">
+                    <h4>🏠 買樓 — 每月總成本</h4>
+                    <div class="big-num" id="buyerBuyingCost">HK$30,930</div>
+                    <div class="sub">供款 + 管理費 + 差餉</div>
+                    <div class="sub" style="margin-top:8px;">+ 首期機會成本：<span id="buyerOpportunityCost">HK$5,833</span></div>
+                    <div class="sub" style="margin-top:4px;">= <strong id="buyerTotalCost">HK$36,763</strong> / 月</div>
+                </div>
+                <div class="compare-card buyer-theme">
+                    <h4>🏘️ 租樓 + 定期存款 — 每月成本</h4>
+                    <div class="big-num" id="buyerRentingCost">HK$20,000</div>
+                    <div class="sub">租金支出</div>
+                    <div class="sub" style="margin-top:8px;">− 首期定期利息：<span id="buyerDepositIncome">HK$5,833</span></div>
+                    <div class="sub" style="margin-top:4px;">= <strong id="buyerRentingNet">HK$14,167</strong> / 月</div>
+                </div>
+                <div class="compare-card" id="buyerVerdictCard">
+                    <h4>📊 結論</h4>
+                    <div class="big-num" id="buyerVerdictText">租樓更省</div>
+                    <div class="sub" id="buyerVerdictDetail">每月節省 HK$22,596</div>
+                    <div class="sub" style="margin-top:8px; font-size:0.8em;">(考慮首期機會成本)</div>
+                </div>
+            </div>
+
+            <div class="result-box" style="background: #f8f9fa;">
+                <h3>📋 買家詳細分析</h3>
+                <div class="result-item"><span class="result-label">物業價格</span><span class="result-value" id="b_propertyPrice">HK$7,000,000</span></div>
+                <div class="result-item"><span class="result-label">首期 (物業價格 − 貸款)</span><span class="result-value" id="b_downPayment">HK$2,000,000</span></div>
+                <div class="result-item"><span class="result-label">每月供款</span><span class="result-value" id="b_monthlyPayment">HK$27,730</span></div>
+                <div class="result-item"><span class="result-label">供款中：利息部分</span><span class="result-value" id="b_interestPortion">HK$12,500</span></div>
+                <div class="result-item"><span class="result-label">供款中：本金部分 (強制儲蓄)</span><span class="result-value positive" id="b_principalPortion">HK$15,230</span></div>
+                <div class="result-item"><span class="result-label">管理費 + 差餉</span><span class="result-value" id="b_fees">HK$3,200</span></div>
+                <div class="result-item"><span class="result-label">首期每月機會成本 (定期存款利息)</span><span class="result-value highlight" id="b_opportunityCost">HK$5,833</span></div>
+                <div class="result-item" style="background:#e8f4fc; padding:12px; margin-top:8px; border-radius:6px;">
+                    <span class="result-label" style="font-weight:700; color:#2c3e50;">買樓每月實質總成本 (供款+費用+機會成本)</span>
+                    <span class="result-value" id="b_totalEffectiveCost">HK$36,763</span>
+                </div>
+            </div>
+
+            <div class="result-box" style="background: #f0f8ff;">
+                <h3>🏘️ 租樓 + 定期存款 詳細分析</h3>
+                <div class="result-item"><span class="result-label">每月租金 (買家租樓)</span><span class="result-value" id="b_rent">HK$20,000</span></div>
+                <div class="result-item"><span class="result-label">首期放定期存款每月利息</span><span class="result-value positive" id="b_depositMonthlyIncome">HK$5,833</span></div>
+                <div class="result-item" style="background:#e8f8f0; padding:12px; margin-top:8px; border-radius:6px;">
+                    <span class="result-label" style="font-weight:700; color:#2c3e50;">租樓每月淨成本 (租金 − 存款利息)</span>
+                    <span class="result-value" id="b_netRentingCost">HK$14,167</span>
+                </div>
+            </div>
+
+            <div class="insight" id="buyerInsight">
+                <strong>📌 買家分析：</strong> 載入中...
+            </div>
+
+            <div class="chart-box">
+                <h3>買家每月支出比較</h3>
+                <canvas id="buyerChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ==================== SELLER VIEW ==================== -->
+        <div class="card" style="margin-bottom: 30px;">
+            <h2 style="color: #8e44ad;">🏠 業主/賣家角度：繼續持有收租 vs 賣樓套現放定期存款</h2>
+            <p style="color: #7f8c8d; margin-top: -10px;">作為業主，你的選擇：<strong>(A) 唔賣，繼續收租</strong> 還是 <strong>(B) 賣樓套現，放定期存款</strong>？</p>
+
+            <div class="grid-3 comparison-grid">
+                <div class="compare-card seller-theme">
+                    <h4>🏘️ 繼續收租 — 每月淨現金流</h4>
+                    <div class="big-num" id="sellerRentalNet">HK$4,300</div>
+                    <div class="sub" id="sellerNetCashFlowLabel">租金 (賣家收租) − 利息 − 管理費 − 差餉</div>
+                    <div class="sub" style="margin-top:8px;" id="sellerMortgageLabel">(假設仍有按揭)</div>
+                </div>
+                <div class="compare-card seller-theme">
+                    <h4>💰 賣樓套現 — 每月定期存款利息</h4>
+                    <div class="big-num" id="sellerDepositIncome">HK$20,417</div>
+                    <div class="sub">物業價格 × 定期利率 ÷ 12</div>
+                    <div class="sub" style="margin-top:8px;">(無租務煩惱、無空置風險)</div>
+                </div>
+                <div class="compare-card" id="sellerVerdictCard">
+                    <h4>📊 結論</h4>
+                    <div class="big-num" id="sellerVerdictText">賣樓更賺</div>
+                    <div class="sub" id="sellerVerdictDetail">每月多 HK$16,117</div>
+                    <div class="sub" style="margin-top:8px; font-size:0.8em;">(考慮空置期後)</div>
+                </div>
+            </div>
+
+            <div class="result-box" style="background: #f5eefc;">
+                <h3>🏘️ 選項 A：繼續持有物業，出租</h3>
+                <div class="result-item"><span class="result-label">每月租金收入 (賣家收租)</span><span class="result-value" id="s_rent">HK$20,000</span></div>
+                <div class="result-item"><span class="result-label">每月供款 (利息部分)</span><span class="result-value" id="s_interest">HK$12,500</span></div>
+                <div class="result-item"><span class="result-label">每月供款 (本金部分，資產累積)</span><span class="result-value positive" id="s_principal">HK$15,230</span></div>
+                <div class="result-item"><span class="result-label">每月管理費 + 差餉</span><span class="result-value" id="s_fees">HK$3,200</span></div>
+                <div class="result-item"><span class="result-label">每年空置期損失 (租金 × 空置月數)</span><span class="result-value highlight" id="s_vacancyLoss">HK$20,000 / 年</span></div>
+                <div class="result-item" style="background:#e8f8f0; padding:12px; margin-top:8px; border-radius:6px;">
+                    <span class="result-label" style="font-weight:700; color:#2c3e50;">每月淨現金流 (租金 − 利息 − 費用)</span>
+                    <span class="result-value" id="s_netCashFlow">HK$4,300</span>
+                </div>
+                <div class="result-item" style="background:#d1f2eb; padding:12px; margin-top:8px; border-radius:6px;">
+                    <span class="result-label" style="font-weight:700; color:#2c3e50;">每月總經濟回報 (淨現金流 + 本金還款)</span>
+                    <span class="result-value" id="s_totalEconomicReturn">HK$19,530</span>
+                </div>
+            </div>
+
+            <div class="result-box" style="background: #f0f8ff;">
+                <h3>💰 選項 B：賣樓套現，放定期存款</h3>
+                <div class="result-item"><span class="result-label">物業價格 (賣出所得)</span><span class="result-value" id="s_salePrice">HK$7,000,000</span></div>
+                <div class="result-item"><span class="result-label">定期存款年利率</span><span class="result-value" id="s_depositRate">3.5%</span></div>
+                <div class="result-item"><span class="result-label">每月定期存款利息收入</span><span class="result-value positive" id="s_monthlyDepositIncome">HK$20,417</span></div>
+                <div class="result-item"><span class="result-label">租務風險</span><span class="result-value positive">無</span></div>
+                <div class="result-item"><span class="result-label">空置風險</span><span class="result-value positive">無</span></div>
+                <div class="result-item"><span class="result-label">維修/管理責任</span><span class="result-value positive">無</span></div>
+                <div class="result-item" style="background:#d1ecf9; padding:12px; margin-top:8px; border-radius:6px;">
+                    <span class="result-label" style="font-weight:700; color:#2c3e50;">每月淨現金收入</span>
+                    <span class="result-value" id="s_netDepositIncome">HK$20,417</span>
+                </div>
+            </div>
+
+            <div class="result-box" style="background: #fff5f5;">
+                <h3>⚠️ 最壞情況：如果租唔出，業主的損失</h3>
+                <div class="result-item" id="vacantInterestRow"><span class="result-label">每月仍要支付的供款 (利息)</span><span class="result-value highlight" id="s_vacantInterest">HK$12,500</span></div>
+                <div class="result-item"><span class="result-label">每月仍要支付的管理費 + 差餉</span><span class="result-value highlight" id="s_vacantFees">HK$3,200</span></div>
+                <div class="result-item"><span class="result-label">每月損失的租金收入 (機會成本)</span><span class="result-value highlight" id="s_vacantRentLost">HK$20,000</span></div>
+                <div class="result-item" style="background:#ffeaea; padding:12px; margin-top:8px; border-radius:6px;">
+                    <span class="result-label" style="font-weight:700; color:#c0392b;">每月總損失 (若完全空置)</span>
+                    <span class="result-value highlight" id="s_vacantTotalLoss">HK$35,700</span>
+                </div>
+                <div class="result-item" style="background:#fff0f0; padding:12px; margin-top:8px; border-radius:6px;">
+                    <span class="result-label" style="font-weight:700; color:#c0392b;">每年總損失 (若完全空置)</span>
+                    <span class="result-value highlight" id="s_vacantAnnualLoss">HK$428,400</span>
+                </div>
+            </div>
+
+            <div class="insight" id="sellerInsight">
+                <strong>📌 業主分析：</strong> 載入中...
+            </div>
+
+            <div class="chart-box">
+                <h3>業主每月收入比較</h3>
+                <canvas id="sellerChart"></canvas>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>此計算器結果僅供參考，未考慮房產增值、租金上漲、維修費用、稅務、交易成本等因素。</p>
+            <p>© 2025 買家與業主雙視角分析 | 買樓 vs 租樓 vs 定期存款</p>
+        </div>
+    </div>
+
+    <script>
+        // === DOM ===
+        const $ = id => document.getElementById(id);
+        
+        // Inputs
+        const propertyPriceInput = $('propertyPrice'), propertyPriceSlider = $('propertyPriceSlider'), propertyPriceValue = $('propertyPriceValue');
+        const propertySizeInput = $('propertySize'), propertySizeSlider = $('propertySizeSlider'), propertySizeValue = $('propertySizeValue');
+        const timeDepositRateInput = $('timeDepositRate'), timeDepositRateSlider = $('timeDepositRateSlider'), timeDepositRateValue = $('timeDepositRateValue');
+        const mortgageRateInput = $('mortgageRate'), mortgageRateSlider = $('mortgageRateSlider'), mortgageRateValue = $('mortgageRateValue');
+        const loanAmountInput = $('loanAmount'), loanAmountSlider = $('loanAmountSlider'), loanAmountValue = $('loanAmountValue');
+        const loanTermInput = $('loanTerm'), loanTermSlider = $('loanTermSlider'), loanTermValue = $('loanTermValue');
+        const managementFeeInput = $('managementFee'), managementFeeSlider = $('managementFeeSlider'), managementFeeValue = $('managementFeeValue');
+        const ratesInput = $('rates'), ratesSlider = $('ratesSlider'), ratesValue = $('ratesValue');
+        const buyerRentInput = $('buyerRent'), buyerRentSlider = $('buyerRentSlider'), buyerRentValue = $('buyerRentValue');
+        const sellerRentInput = $('sellerRent'), sellerRentSlider = $('sellerRentSlider'), sellerRentValue = $('sellerRentValue');
+        const vacancyMonthsInput = $('vacancyMonths'), vacancyMonthsSlider = $('vacancyMonthsSlider'), vacancyMonthsValue = $('vacancyMonthsValue');
+        const sellerNoMortgageCheckbox = $('sellerNoMortgage');
+        const noMortgageNote = $('noMortgageNote');
+        const calculateBtn = $('calculateBtn');
+        
+        let buyerChart, sellerChart;
+        
+        function formatCurrency(amount) {
+            return 'HK$' + amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        function formatCurrency2(amount) {
+            return 'HK$' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+        function formatNumber(n) {
+            return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        function calculateMonthlyPayment(principal, annualRate, years) {
+            if (principal <= 0) return 0;
+            const r = annualRate / 100 / 12;
+            const n = years * 12;
+            if (r === 0) return principal / n;
+            return principal * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1);
+        }
+        
+        function calculate() {
+            // --- Inputs ---
+            const propertyPrice = parseFloat(propertyPriceInput.value) || 0;
+            const loanAmount = parseFloat(loanAmountInput.value) || 0;
+            const mortgageRate = parseFloat(mortgageRateInput.value) || 0;
+            const loanTerm = parseInt(loanTermInput.value) || 0;
+            const managementFee = parseFloat(managementFeeInput.value) || 0;
+            const rates = parseFloat(ratesInput.value) || 0;
+            const buyerRent = parseFloat(buyerRentInput.value) || 0;
+            const sellerRent = parseFloat(sellerRentInput.value) || 0;
+            const depositRate = parseFloat(timeDepositRateInput.value) || 0;
+            const vacancyMonths = parseFloat(vacancyMonthsInput.value) || 0;
+            const sellerNoMortgage = sellerNoMortgageCheckbox.checked;
+            
+            // Toggle note visibility
+            if (sellerNoMortgage) {
+                noMortgageNote.classList.add('show');
+            } else {
+                noMortgageNote.classList.remove('show');
+            }
+            
+            // --- Common calcs ---
+            const downPayment = propertyPrice - loanAmount;
+            const monthlyPayment = calculateMonthlyPayment(loanAmount, mortgageRate, loanTerm);
+            const monthlyRate = mortgageRate / 100 / 12;
+            const firstMonthInterest = loanAmount * monthlyRate;
+            const firstMonthPrincipal = monthlyPayment - firstMonthInterest;
+            const fees = managementFee + rates;
+            
+            // --- BUYER VIEW ---
+            const monthlyOpportunityCost = (downPayment * (depositRate / 100)) / 12;
+            const buyingTotalMonthlyCost = monthlyPayment + fees;
+            const buyingTotalEffective = buyingTotalMonthlyCost + monthlyOpportunityCost;
+            const rentingNetCost = buyerRent - monthlyOpportunityCost;
+            const buyerDiff = buyingTotalEffective - rentingNetCost;
+            
+            // Update buyer DOM
+            $('buyerBuyingCost').textContent = formatCurrency(buyingTotalMonthlyCost);
+            $('buyerOpportunityCost').textContent = formatCurrency(monthlyOpportunityCost);
+            $('buyerTotalCost').textContent = formatCurrency(buyingTotalEffective);
+            $('buyerRentingCost').textContent = formatCurrency(buyerRent);
+            $('buyerDepositIncome').textContent = formatCurrency(monthlyOpportunityCost);
+            $('buyerRentingNet').textContent = formatCurrency(rentingNetCost);
+            
+            const buyerVerdictCard = $('buyerVerdictCard');
+            if (buyerDiff > 0) {
+                $('buyerVerdictText').textContent = '🏘️ 租樓更省';
+                $('buyerVerdictDetail').textContent = '每月節省 ' + formatCurrency(buyerDiff);
+                buyerVerdictCard.style.border = '2px solid #2ecc71';
+                buyerVerdictCard.style.background = 'linear-gradient(135deg, #e8f8f0, #d1f2eb)';
+            } else {
+                $('buyerVerdictText').textContent = '🏠 買樓更省';
+                $('buyerVerdictDetail').textContent = '每月節省 ' + formatCurrency(-buyerDiff);
+                buyerVerdictCard.style.border = '2px solid #3498db';
+                buyerVerdictCard.style.background = 'linear-gradient(135deg, #e8f4fc, #d1ecf9)';
+            }
+            
+            $('b_propertyPrice').textContent = formatCurrency(propertyPrice);
+            $('b_downPayment').textContent = formatCurrency(downPayment);
+            $('b_monthlyPayment').textContent = formatCurrency(monthlyPayment);
+            $('b_interestPortion').textContent = formatCurrency(firstMonthInterest);
+            $('b_principalPortion').textContent = formatCurrency(firstMonthPrincipal);
+            $('b_fees').textContent = formatCurrency(fees);
+            $('b_opportunityCost').textContent = formatCurrency(monthlyOpportunityCost);
+            $('b_totalEffectiveCost').textContent = formatCurrency(buyingTotalEffective);
+            $('b_rent').textContent = formatCurrency(buyerRent);
+            $('b_depositMonthlyIncome').textContent = formatCurrency(monthlyOpportunityCost);
+            $('b_netRentingCost').textContent = formatCurrency(rentingNetCost);
+            
+            $('buyerInsight').innerHTML = `<strong>📌 買家分析：</strong>
+                <br>• 如果<strong>買樓</strong>，每月實質總成本（供款+管理費+差餉+首期機會成本）約 <strong>${formatCurrency(buyingTotalEffective)}</strong>。
+                <br>• 如果<strong>租樓 (每月租金 ${formatCurrency(buyerRent)}) + 首期放定期存款</strong>，每月淨成本（租金−存款利息）約 <strong>${formatCurrency(rentingNetCost)}</strong>。
+                <br>• <strong style="color:${buyerDiff > 0 ? '#e74c3c' : '#27ae60'};">
+                ${buyerDiff > 0 
+                    ? '租樓每月比買樓節省 ' + formatCurrency(buyerDiff) + '。' 
+                    : '買樓每月比租樓節省 ' + formatCurrency(-buyerDiff) + '。'}
+                </strong>
+                ${buyerDiff > 0 
+                    ? '<br>但注意：買樓的供款中，本金部分（' + formatCurrency(firstMonthPrincipal) + '/月）是資產累積，並非真正「花掉」。' 
+                    : '<br>買樓本金部分為資產累積，長期而言財富效果更佳。'}
+            `;
+            
+            // --- SELLER VIEW (with no-mortgage option) ---
+            // If seller has no mortgage, interest and principal = 0
+            const sellerInterest = sellerNoMortgage ? 0 : firstMonthInterest;
+            const sellerPrincipal = sellerNoMortgage ? 0 : firstMonthPrincipal;
+            
+            const sellerNetCashFlow = sellerRent - sellerInterest - fees;
+            const sellerTotalEconomic = sellerNetCashFlow + sellerPrincipal;
+            
+            // Vacancy impact
+            const annualVacancyLoss = sellerRent * vacancyMonths;
+            const monthlyVacancyLoss = annualVacancyLoss / 12;
+            const sellerNetCashFlowAfterVacancy = sellerNetCashFlow - monthlyVacancyLoss;
+            const sellerTotalEconomicAfterVacancy = sellerTotalEconomic - monthlyVacancyLoss;
+            
+            // Option B: Sell and put in fixed deposit
+            const sellerDepositMonthly = (propertyPrice * (depositRate / 100)) / 12;
+            
+            // Seller verdict
+            const sellerDiff = sellerTotalEconomicAfterVacancy - sellerDepositMonthly;
+            
+            // Update seller DOM
+            $('sellerRentalNet').textContent = formatCurrency(sellerNetCashFlow);
+            $('sellerDepositIncome').textContent = formatCurrency(sellerDepositMonthly);
+            
+            // Update labels based on mortgage status
+            if (sellerNoMortgage) {
+                $('sellerNetCashFlowLabel').textContent = '租金 (賣家收租) − 管理費 − 差餉（無按揭）';
+                $('sellerMortgageLabel').textContent = '✅ 已供滿，無按揭支出';
+                $('s_interest').textContent = 'HK$0 (無按揭)';
+                $('s_principal').textContent = 'HK$0 (無按揭)';
+            } else {
+                $('sellerNetCashFlowLabel').textContent = '租金 (賣家收租) − 利息 − 管理費 − 差餉';
+                $('sellerMortgageLabel').textContent = '(假設仍有按揭)';
+                $('s_interest').textContent = formatCurrency(sellerInterest);
+                $('s_principal').textContent = formatCurrency(sellerPrincipal);
+            }
+            
+            const sellerVerdictCard = $('sellerVerdictCard');
+            if (sellerDiff > 0) {
+                $('sellerVerdictText').textContent = '🏘️ 收租更賺';
+                $('sellerVerdictDetail').textContent = '每月多 ' + formatCurrency(sellerDiff);
+                sellerVerdictCard.style.border = '2px solid #9b59b6';
+                sellerVerdictCard.style.background = 'linear-gradient(135deg, #f0e8fc, #e2d1f9)';
+            } else {
+                $('sellerVerdictText').textContent = '💰 賣樓更賺';
+                $('sellerVerdictDetail').textContent = '每月多 ' + formatCurrency(-sellerDiff);
+                sellerVerdictCard.style.border = '2px solid #2ecc71';
+                sellerVerdictCard.style.background = 'linear-gradient(135deg, #e8f8f0, #d1f2eb)';
+            }
+            
+            $('s_rent').textContent = formatCurrency(sellerRent);
+            $('s_fees').textContent = formatCurrency(fees);
+            $('s_vacancyLoss').textContent = formatCurrency(annualVacancyLoss) + ' / 年';
+            $('s_netCashFlow').textContent = formatCurrency(sellerNetCashFlow);
+            $('s_totalEconomicReturn').textContent = formatCurrency(sellerTotalEconomicAfterVacancy) + ' (已扣空置)';
+            
+            $('s_salePrice').textContent = formatCurrency(propertyPrice);
+            $('s_depositRate').textContent = depositRate + '%';
+            $('s_monthlyDepositIncome').textContent = formatCurrency(sellerDepositMonthly);
+            $('s_netDepositIncome').textContent = formatCurrency(sellerDepositMonthly);
+            
+            // Vacancy worst case
+            const vacantTotalMonthly = sellerInterest + fees + sellerRent;
+            const vacantTotalAnnual = vacantTotalMonthly * 12;
+            $('s_vacantInterest').textContent = sellerNoMortgage ? 'HK$0 (無按揭)' : formatCurrency(sellerInterest);
+            $('s_vacantFees').textContent = formatCurrency(fees);
+            $('s_vacantRentLost').textContent = formatCurrency(sellerRent);
+            $('s_vacantTotalLoss').textContent = formatCurrency(vacantTotalMonthly);
+            $('s_vacantAnnualLoss').textContent = formatCurrency(vacantTotalAnnual);
+            
+            // Seller insight
+            const mortgageStatusText = sellerNoMortgage 
+                ? '（✅ 已供滿，無按揭負擔）' 
+                : `（仍有按揭：利息 ${formatCurrency(sellerInterest)}/月 + 本金 ${formatCurrency(sellerPrincipal)}/月）`;
+            
+            $('sellerInsight').innerHTML = `<strong>📌 業主分析 (以賣家收租 ${formatCurrency(sellerRent)}/月 計算) ${mortgageStatusText}：</strong>
+                <br>• <strong>如果繼續持有收租：</strong>每月淨現金流約 <strong>${formatCurrency(sellerNetCashFlow)}</strong>（租金−${sellerNoMortgage ? '管理費−差餉' : '利息−管理費−差餉'}），${sellerNoMortgage ? '' : `加上本金還款 ${formatCurrency(sellerPrincipal)}，`}每月總經濟回報約 <strong>${formatCurrency(sellerTotalEconomic)}</strong>。扣除空置期後約 <strong>${formatCurrency(sellerTotalEconomicAfterVacancy)}</strong>。
+                <br>• <strong>如果賣樓套現放定期：</strong>每月穩定收入約 <strong>${formatCurrency(sellerDepositMonthly)}</strong>，無租務風險、無空置風險、無維修責任。
+                <br>• <strong style="color:${sellerDiff > 0 ? '#8e44ad' : '#27ae60'};">
+                ${sellerDiff > 0 
+                    ? '繼續收租（已扣空置）每月比賣樓放定期多 ' + formatCurrency(sellerDiff) + '。' 
+                    : '賣樓放定期每月比繼續收租（已扣空置）多 ' + formatCurrency(-sellerDiff) + '。'}
+                </strong>
+                <br>• <strong style="color:#c0392b;">⚠️ 如果租唔出（完全空置）：</strong>業主每月仍要支付${sellerNoMortgage ? '管理費差餉' : `利息 ${formatCurrency(sellerInterest)} + 管理費差餉`} ${formatCurrency(fees)}，加上損失的租金 ${formatCurrency(sellerRent)}，每月總損失高達 <strong>${formatCurrency(vacantTotalMonthly)}</strong>，每年損失 <strong>${formatCurrency(vacantTotalAnnual)}</strong>。
+            `;
+            
+            // --- CHARTS ---
+            updateBuyerChart(buyingTotalEffective, rentingNetCost, buyingTotalMonthlyCost, monthlyOpportunityCost, buyerRent, monthlyOpportunityCost);
+            updateSellerChart(sellerTotalEconomicAfterVacancy, sellerDepositMonthly, sellerNetCashFlow, sellerPrincipal, sellerInterest, fees);
+        }
+        
+        function updateBuyerChart(buyingTotal, rentingNet, buyingCost, oppCost, rent, depositIncome) {
+            if (buyerChart) buyerChart.destroy();
+            const ctx = document.getElementById('buyerChart');
+            buyerChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['🏠 買樓', '🏘️ 租樓 + 定期'],
+                    datasets: [
+                        { label: '供款 + 費用', data: [buyingCost, 0], backgroundColor: '#3498db' },
+                        { label: '首期機會成本', data: [oppCost, -depositIncome], backgroundColor: '#9b59b6' },
+                        { label: '租金 (買家)', data: [0, rent], backgroundColor: '#f39c12' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true,
+                    scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: v => 'HK$' + v.toLocaleString() } } },
+                    plugins: {
+                        tooltip: { callbacks: { label: ctx => ctx.raw !== 0 ? `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}` : null } },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+        
+        function updateSellerChart(rentalTotal, depositIncome, netCF, principal, interest, fees) {
+            if (sellerChart) sellerChart.destroy();
+            const ctx = document.getElementById('sellerChart');
+            sellerChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['🏘️ 繼續收租 (扣空置)', '💰 賣樓放定期'],
+                    datasets: [
+                        { label: '淨現金流', data: [netCF, 0], backgroundColor: '#9b59b6' },
+                        { label: '本金還款 (資產累積)', data: [principal, 0], backgroundColor: '#2ecc71' },
+                        { label: '定期存款利息', data: [0, depositIncome], backgroundColor: '#3498db' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true,
+                    scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: v => 'HK$' + v.toLocaleString() } } },
+                    plugins: {
+                        tooltip: { callbacks: { label: ctx => ctx.raw !== 0 ? `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}` : null } },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+        
+        // === Slider bindings ===
+        function bind(input, slider, display, isCurrency, suffix) {
+            input.addEventListener('input', () => {
+                slider.value = input.value;
+                display.textContent = isCurrency ? formatNumber(parseFloat(input.value) || 0) : (input.value + (suffix || ''));
+                calculate();
+            });
+            slider.addEventListener('input', () => {
+                input.value = slider.value;
+                display.textContent = isCurrency ? formatNumber(parseFloat(input.value) || 0) : (input.value + (suffix || ''));
+                calculate();
+            });
+        }
+        
+        bind(propertyPriceInput, propertyPriceSlider, propertyPriceValue, true);
+        bind(propertySizeInput, propertySizeSlider, propertySizeValue, true);
+        bind(timeDepositRateInput, timeDepositRateSlider, timeDepositRateValue, false, '%');
+        bind(mortgageRateInput, mortgageRateSlider, mortgageRateValue, false, '%');
+        bind(loanAmountInput, loanAmountSlider, loanAmountValue, true);
+        bind(loanTermInput, loanTermSlider, loanTermValue, false, ' 年');
+        bind(managementFeeInput, managementFeeSlider, managementFeeValue, true);
+        bind(ratesInput, ratesSlider, ratesValue, true);
+        bind(buyerRentInput, buyerRentSlider, buyerRentValue, true);
+        bind(sellerRentInput, sellerRentSlider, sellerRentValue, true);
+        bind(vacancyMonthsInput, vacancyMonthsSlider, vacancyMonthsValue, false, ' 個月/年');
+        
+        // Checkbox listener
+        sellerNoMortgageCheckbox.addEventListener('change', calculate);
+        
+        calculateBtn.addEventListener('click', calculate);
+        
+        // Initialize
+        propertyPriceValue.textContent = formatNumber(parseFloat(propertyPriceInput.value));
+        propertySizeValue.textContent = formatNumber(parseFloat(propertySizeInput.value)) + ' 平方呎';
+        timeDepositRateValue.textContent = timeDepositRateInput.value + '%';
+        mortgageRateValue.textContent = mortgageRateInput.value + '%';
+        loanAmountValue.textContent = formatNumber(parseFloat(loanAmountInput.value));
+        loanTermValue.textContent = loanTermInput.value + ' 年';
+        managementFeeValue.textContent = formatNumber(parseFloat(managementFeeInput.value));
+        ratesValue.textContent = formatNumber(parseFloat(ratesInput.value));
+        buyerRentValue.textContent = formatNumber(parseFloat(buyerRentInput.value));
+        sellerRentValue.textContent = formatNumber(parseFloat(sellerRentInput.value));
+        vacancyMonthsValue.textContent = vacancyMonthsInput.value + ' 個月/年';
+        
+        calculate();
+    </script>
+</body>
+</html>
